@@ -4,10 +4,10 @@
 
 using namespace std;
 
-typedef vector<vector<int>> matrix;
+typedef vector<vector<int>> mat;
 
-matrix MINOR(matrix M, int r, int c) {
-  matrix minor;
+mat MINOR(mat M, int r, int c) {
+  mat minor;
   for(int i = 0; i < M.size(); i ++) {
     if(i != r) {
       minor.push_back({});
@@ -21,7 +21,7 @@ matrix MINOR(matrix M, int r, int c) {
   return minor;
 }
 
-int DET(matrix M) {
+int DET(mat M) {
   if(M.size() == 1) {
     return M[0][0];
   }
@@ -35,9 +35,9 @@ int DET(matrix M) {
 }
 
 int main() {
-  matrix mat = {{5, 2, 9, 4}, 
-                {1, 5, 0, 4}, 
-                {7, 8, 1, 3},
-                {3, 3, 3, 1}};
-  cout << DET(mat);
+  mat M = {{5, 2, 9, 4}, 
+           {1, 5, 0, 4}, 
+           {7, 8, 1, 3},
+           {3, 3, 3, 1}};
+  cout << DET(M);
 }
