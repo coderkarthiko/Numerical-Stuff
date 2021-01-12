@@ -1,37 +1,27 @@
+// determinant using Gaussian elimination - O(N^3)
+
 #include <iostream>
 #include <vector>
-#include <math.h>
 
 using namespace std;
 
 typedef vector<vector<int>> mat;
 
-mat MINOR(mat M, int r, int c) {
-  mat minor;
+double det(mat M) {
+  double det = 1;
   for(int i = 0; i < M.size(); i ++) {
-    if(i != r) {
-      minor.push_back({});
-      for(int j = 0; j < M.size(); j ++) {
-        if(j != c) {
-          minor.back().push_back(M[i][j]);
-        }
+    det *= M[i][i];
+    if(det == 0) {
+      return 0;
+    }
+    for(int j = i + 1; j < M.size(); j ++) {
+      double f = M[j][i] / M[i][i];
+      for(int k = i + 1; k < M.size(); k ++) {
+        M[j][k] -= M[i][k] * f; 
       }
     }
   }
-  return minor;
-}
-
-int DET(mat M) {
-  if(M.size() == 1) {
-    return M[0][0];
-  }
-  else {
-    int det = 0;
-    for(int i = 0; i < M.size(); i ++) {
-      det += pow(-1, i) * M[0][i] * DET(MINOR(M, 0, i));
-    }
-    return det;
-  }
+  return det;
 }
 
 int main() {
@@ -39,5 +29,5 @@ int main() {
            {1, 5, 0, 4}, 
            {7, 8, 1, 3},
            {3, 3, 3, 1}};
-  cout << DET(M);
+  cout << det(M);
 }
