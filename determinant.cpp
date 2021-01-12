@@ -16,7 +16,7 @@ double det(mat M) {
     }
     for(int j = i + 1; j < M.size(); j ++) {
       double f = M[j][i] / M[i][i];
-      for(int k = i + 1; k < M.size(); k ++) {
+      for(int k = i; k < M.size(); k ++) {
         M[j][k] -= M[i][k] * f; 
       }
     }
