@@ -1,33 +1,52 @@
-// determinant using Gaussian elimination - O(N^3)
-
 #include <iostream>
 #include <vector>
+#include <cmath>
 
 using namespace std;
 
-typedef vector<vector<int>> mat;
+typedef vector<double> vd;
+typedef vector<vd> mat;
 
 double det(mat M) {
   double det = 1;
   for(int i = 0; i < M.size(); i ++) {
-    det *= M[i][i];
-    if(det == 0) {
+    int r = i; 
+    for(int j = i + 1; j < M.size(); j ++) {
+      if(abs(M[j][i]) > abs(M[r][i])) {
+        r = j;
+      }
+    }
+    if(M[i][i] == 0) {
       return 0;
     }
+    if(i != r) {
+      for(int j = i; j < M.size(); j ++) {
+        swap(M[i][j], M[r][j]);
+      }
+      det *= -1.;
+    }
+    det *= M[i][i];
     for(int j = i + 1; j < M.size(); j ++) {
-      double f = M[j][i] / M[i][i];
-      for(int k = i; k < M.size(); k ++) {
-        M[j][k] -= M[i][k] * f; 
+      for(int k = i + 1; k < M.size(); k ++) {
+        M[j][k] -= M[i][k] * (M[j][i] / M[i][i]);
       }
     }
   }
   return det;
 }
 
+mat get() {
+  int n;
+  cin >> n;
+  mat M(n, vd(n));
+  for(int i = 0; i < M.size(); i ++) {
+    for(int j = 0; j < M.size(); j ++) {
+      cin >> M[i][j];
+    }
+  }
+  return M;
+}
+
 int main() {
-  mat M = {{5, 2, 9, 4}, 
-           {1, 5, 0, 4}, 
-           {7, 8, 1, 3},
-           {3, 3, 3, 1}};
-  cout << det(M);
+  cout << fixed << det(get());
 }
