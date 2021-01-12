@@ -1,2 +1,2 @@
 # Numerical-Stuff
-All Numerical Algorithms 'n Shit
+Numerical Algorithms 'n Shit
