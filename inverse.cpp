@@ -1,61 +1,60 @@
 #include <iostream>
 #include <vector>
+#include <stdexcept>
 
 using namespace std;
 
 typedef vector<double> vd;
 typedef vector<vd> mat;
 
-// function
-mat inv(mat A) {
-  // update det as elimination happens
-  double det = 1.; 
-  // initialize identity matrix
-  mat I(A.size(), vd(A.size(), 0));
-  for(int i = 0; i < A.size(); i ++) {
+mat inv(mat M) {
+  mat I(M.size(), vd(M.size(), 0));
+  for(int i = 0; i < M.size(); i ++) {
     I[i][i] = 1;
   }
-  for(int i = 0; i < A.size(); i ++) {
-    // pivot element
-    double f = A[i][i];
-    // if A[i][i] is 0, determinant is 0 => no inverse
-    if(f == 0.) {
-      cout << "NO INVERSE, |A| = 0";
+  for(int i = 0; i < M.size(); i ++) {
+    double f = M[i][i];
+    if(f == 0) {
+      throw invalid_argument("matrix is singular");
     }
-    // divide row by pivot element
-    for(int j = 0; j < A.size(); j ++) {
-      A[i][j] /= f;
+    for(int j = 0; j < M.size(); j ++) {
+      M[i][j] /= f;
       I[i][j] /= f;
     }
-    // update det
-    det *= f;
-    // row operations till RREF
-    for(int j = 0; j < A.size(); j ++) {
+    for(int j = 0; j < M.size(); j ++) {
       if(j != i) {
-        f = A[j][i];        
-        for(int k = 0; k < A.size(); k ++) {
-          A[j][k] -= f * A[i][k];
+        f = M[j][i];        
+        for(int k = 0; k < M.size(); k ++) {
+          M[j][k] -= f * M[i][k];
           I[j][k] -= f * I[i][k];
         }
       }
     }
   }
-  // print determinant and return inverse
-  cout << "INVERSE EXISTS, |A| = " << det << "\n\n";
   return I;
 }
 
+mat get() {
+  int n;
+  cin >> n;
+  mat M(n, vd(n));
+  for(int i = 0; i < n; i ++) {
+    for(int j = 0; j < n; j ++) {
+      cin >> M[i][j];
+    }
+  }
+  return M;
+}
 
-int main() {
-  mat A = {{1.3, 5., 11., 1., 11., 7.},
-           {6., 4., 2.1, 14, 8.},
-           {1.7, 8., 9., 3.2, 0.},
-           {7., 1.5, 3., 2., 1.},
-           {5.6, 1.6, 5., 4.2, 4.}};
-  for(auto r: inv(A)) {
-    for(auto c: r) {
-      cout << c << "  ";
+void print_mat(mat M) {
+  for(auto row: M) {
+    for(auto col: row) {
+      cout << col << "  ";
     }
     cout << "\n\n";
   }
+}
+
+int main() {
+  print_mat(inv(get()));
 }
