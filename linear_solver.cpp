@@ -60,7 +60,7 @@ mat mul(mat A, mat B) { // multiply two matrices
   return AB;
 }
 
-mat transpose(mat A) { // return transpose of matrix A
+mat transpose(mat A) { // return transpose of matrix 
   mat AT(A[0].size(), vd(A.size()));
   for(int i = 0; i < AT.size(); i ++) {
     for(int j = 0; j < AT[0].size(); j ++) {
