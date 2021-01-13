@@ -9,4 +9,4 @@ Finding determinant of an N * N matrix in O(N^3) using Gaussian elimination. Det
 Finding inverse of an N * N using Gauss-Jordan elimination.
 
 ## linear_solver.cpp
-Solving linear equations. Ax = y, computes (A^-1)(yT). Basic stuff.
+Solves Ax = y by computing (A^-1)(yT). Basic stuff.
