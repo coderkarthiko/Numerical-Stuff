@@ -48,7 +48,7 @@ mat inv(mat M) {
   return I; // return inverse
 }
 
-mat mul(mat A, mat B) {
+mat mul(mat A, mat B) { // multiply two matrices
   mat AB(A.size(), vd(B[0].size()));
   for(int i = 0; i < AB.size(); i ++) {
     for(int j = 0; j < AB[0].size(); j ++) {
@@ -70,7 +70,7 @@ mat transpose(mat A) { // return transpose of matrix A
   return AT;
 }
 
-vd solve(mat A, vd y) { // solve Ax = y where x = inv(A)(yT)
+vd solve(mat A, vd y) { // solver
   vd x;
   for(auto r: mul(inv(A), transpose({y}))) {
     x.push_back(r[0]);
