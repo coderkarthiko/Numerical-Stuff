@@ -9,11 +9,12 @@
 
 using namespace std;
 
-typedef vector<double> vd;
+typedef long double ld;
+typedef vector<ld> vd;
 typedef vector<vd> mat;
 
-double det(mat M) {
-  double det = 1; // set initial det val = 1
+ld det(mat M) {
+  ld det = 1; // set initial det val = 1
   for(int i = 0; i < M.size(); i ++) {
     int r = i; // partial pivoting to prevent decimal errors
     for(int j = i + 1; j < M.size(); j ++) {
@@ -21,15 +22,15 @@ double det(mat M) {
         r = j;
       }
     }
-    if(M[i][i] == 0) { // if pivot element is 0, det(M) = 0
-      return 0; 
-    }
     if(i != r) { 
       // if i =/= r, swap row elements except pivot element and multiply det by -1
       for(int j = i; j < M.size(); j ++) {
         swap(M[i][j], M[r][j]);
       }
       det *= -1.;
+    }
+    if(M[i][i] == 0) { // if pivot element is 0, det(M) = 0
+      return 0; 
     }
     det *= M[i][i]; // multiply det by pivot element
     for(int j = i + 1; j < M.size(); j ++) { // row elimination
