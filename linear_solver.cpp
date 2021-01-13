@@ -1,3 +1,5 @@
+// Program to solve Ax = y
+
 #include <iostream>
 #include <vector>
 #include <stdexcept>
