@@ -71,5 +71,5 @@ void print_mat(mat M) { // print matrix
 }
 
 int main() {
-  print_mat(inv(get(A)));
+  print_mat(inv(get()));
 }
