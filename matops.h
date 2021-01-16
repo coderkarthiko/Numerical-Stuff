@@ -43,7 +43,7 @@ ld det(mat M) {
             }
             det *= -1.;
         }
-        if (M[i][i] <= threshold) { // if pivot element is 0, det(M) = 0
+        if (abs(M[i][i]) <= threshold) { // if pivot element is 0, det(M) = 0
             return 0;
         }
         det *= M[i][i]; // multiply det by pivot element
