@@ -1,13 +1,83 @@
 #include "types.h"
 
-// mat multiplication
-// for N*M >= 2^12, uses ~O(N^2.8074) Strassen's algorithm 
-// otherwise, use O(N^3) version
-mat mul(mat A, mat B) { 
-    mat AB(A.size(), vd(B[0].size()));
-    for (int i = 0; i < AB.size(); i++) {
-        for (int j = 0; j < AB[0].size(); j++) {
-            for (int k = 0; k < AB.size(); k++) {
+// print vector
+void print_vd(vd v) {
+    for (auto vx : v) {
+        cout << vx << " ";
+    }
+}
+
+// print matrix
+void print_mat(mat M) {
+    for (auto r : M) {
+        for (auto c : r) {
+            cout << c << " ";
+        }
+        cout << "\n";
+    }
+}
+
+// return identity matrix of dim N
+mat eye(int n) {
+    mat I(n, vd(n));
+    for (int i = 0; i < n; i++) {
+        I[i][i] = 1.;
+    }
+    return I;
+}
+
+// set a block of a matrix equal to something
+void eq(mat &A, mat B, pii rc) {
+    for (int i = 0; i < B.size(); i++) {
+        for (int j = 0; j < B.front().size(); j++) {
+            A[rc.first + i][rc.second + j] = B[i][j];
+        }
+    }
+}
+
+// return a block of a matrix
+mat block(mat M, pii r, pii c) {
+    mat B(r.second - r.first, vd(c.second - c.first));
+    for (int i = 0; i < c.second - c.first; i++) {
+        for (int j = 0; j < c.second - c.first; j++) {
+            B[i][j] = M[r.first + i][c.first + j];
+        }
+    }
+    return B;
+}
+
+// add two matrices
+mat add(mat A, mat B) {
+    assert(A.size() == B.size());
+    assert(A.front().size() == B.front().size());
+    for (int i = 0; i < A.size(); i++) {
+        for (int j = 0; j < A.front().size(); j++) {
+            A[i][j] += B[i][j];
+        }
+    }
+    return A;
+}
+
+// subtract two matrices
+mat subtract(mat A, mat B) {
+    assert(A.size() == B.size());
+    assert(A.front().size() == B.front().size());
+    for (int i = 0; i < A.size(); i++) {
+        for (int j = 0; j < A.front().size(); j++) {
+            A[i][j] -= B[i][j];
+        }
+    }
+    return A;
+}
+
+// matrix multiplication
+// for N*M >= 2^12 - ~O(N^2.8074) Strassen's algorithm 
+// otherwise - standard O(N^3) version
+mat mul(mat A, mat B) { // O(N^3) std
+    mat AB(A.size(), vd(B.front().size()));
+    for (int i = 0; i < A.size(); i++) {
+        for (int j = 0; j < B.front().size(); j++) {
+            for (int k = 0; k < A.size(); k++) {
                 AB[i][j] += A[i][k] * B[k][j];
             }
         }
@@ -26,7 +96,7 @@ mat transpose(mat A) { // return transpose of matrix
     return AT;
 }
 
-// determinant of NxN matrix
+// determinant of a matrix
 ld det(mat M) {
     ld det = 1; // set initial det val = 1
     for (int i = 0; i < M.size(); i++) {
@@ -39,7 +109,7 @@ ld det(mat M) {
         if (i != r) {
             // if i =/= r, swap row elements except pivot element and multiply det by -1
             for (int j = i; j < M.size(); j++) {
-                std::swap(M[i][j], M[r][j]);
+                swap(M[i][j], M[r][j]);
             }
             det *= -1.;
         }
@@ -56,27 +126,24 @@ ld det(mat M) {
     return det; // return determinant
 }
 
-// inverse of NxN matrix
+// inverse of a matrix
 mat inv(mat M) {
     // make identity matrix of same dim as M
-    mat I(M.size(), vd(M.size()));
+    mat I = eye(M.size());
     for (int i = 0; i < M.size(); i++) {
         I[i][i] = 1.;
     }
     for (int i = 0; i < M.size(); i++) {
         int r = i; // partial pivoting 
         for (int j = i + 1; j < M.size(); j++) {
-            if (std::abs(M[j][i]) > std::abs(M[r][i])) {
+            if (abs(M[j][i]) > abs(M[r][i])) {
                 r = j;
             }
         }
         swap(M[i], M[r]);
         swap(I[i], I[r]);
         double f = M[i][i];
-        if (f <= threshold) {
-            std::cout << "NO INVERSE";
-            exit(EXIT_FAILURE);
-        }
+        assert(abs(f) >= threshold);
         for (int j = 0; j < M.size(); j++) { // row / pivot
             M[i][j] /= f;
             I[i][j] /= f;
@@ -97,7 +164,7 @@ mat inv(mat M) {
 // input a vector
 vd get_vd() {
     int n;
-    std::cin >> n;
+    cin >> n;
     vd v(n);
     for (int i = 0; i < n; i++) {
         std::cin >> v[i];
@@ -108,7 +175,7 @@ vd get_vd() {
 // input a matrix
 mat get_mat() {
     int n, m;
-    std::cin >> n >> m;
+    cin >> n >> m;
     mat M(n, vd(m));
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < m; j++) {
@@ -116,21 +183,4 @@ mat get_mat() {
         }
     }
     return M;
-}
-
-// print vector
-void print_vd(vd v) {
-    for (auto vx : v) {
-        std::cout << vx << " ";
-    }
-}
-
-// print matrix
-void print_mat(mat M) {
-    for (auto r : M) {
-        for (auto c : r) {
-            std::cout << c << " ";
-        }
-        std::cout << "\n";
-    }
 }
