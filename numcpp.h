@@ -1,1 +1,1 @@
-#include "linsolver.h"
+#include "linalg.h"
