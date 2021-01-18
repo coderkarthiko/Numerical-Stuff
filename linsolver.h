@@ -3,7 +3,7 @@
 vd linsolve(mat A, vd y) { 
     vd x;
     for (auto r : mul(inv(A), transpose({ y }))) {
-        x.push_back(r[0]);
+        x.push_back(r.front());
     }
     return x;
 }
