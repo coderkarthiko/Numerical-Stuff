@@ -112,7 +112,7 @@ ld det(mat M) {
             }
             det *= -1.;
         }
-        if (abs(M[i][i]) <= threshold) { // if pivot element is 0, det(M) = 0
+        if (abs(M[i][i]) < threshold) { // if pivot element is 0, det(M) = 0
             return 0;
         }
         det *= M[i][i]; // multiply det by pivot element
@@ -142,7 +142,7 @@ mat inv(mat M) {
         swap(M[i], M[r]);
         swap(I[i], I[r]);
         double f = M[i][i];
-        assert(abs(f) >= threshold);
+        assert(abs(f) > threshold);
         for (int j = 0; j < M.size(); j++) { // row / pivot
             M[i][j] /= f;
             I[i][j] /= f;
