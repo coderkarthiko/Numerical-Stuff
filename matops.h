@@ -86,24 +86,11 @@ mat subtract(mat A, mat B) {
 mat transpose(mat A) { // return transpose of matrix 
     mat AT(A[0].size(), vd(A.size()));
     for (int i = 0; i < AT.size(); i++) {
-        for (int j = 0; j < AT[0].size(); j++) {
+        for (int j = 0; j < AT.front().size(); j++) {
             AT[i][j] = A[j][i];
         }
     }
     return AT;
-}
-
-// mat mul
-mat mul(mat A, mat B) {
-    mat C(A.size(), vd(B.front().size()));
-    for (int i = 0; i < A.size(); i++) {
-        for (int j = 0; j < B.front().size(); j++) {
-            for (int k = 0; k < A.size(); k++) {
-                C[i][j] += A[i][k] * B[k][j];
-            }
-        }
-    }
-    return C;
 }
 
 // determinant of a matrix
@@ -123,7 +110,7 @@ ld det(mat M) {
             }
             det *= -1.;
         }
-        if (abs(M[i][i]) <= threshold) { // if pivot element is 0, det(M) = 0
+        if (abs(M[i][i]) < threshold) { // if pivot element is 0, det(M) = 0
             return 0;
         }
         det *= M[i][i]; // multiply det by pivot element
@@ -153,7 +140,7 @@ mat inv(mat M) {
         swap(M[i], M[r]);
         swap(I[i], I[r]);
         double f = M[i][i];
-        assert(abs(f) >= threshold);
+        assert(abs(f) > threshold);
         for (int j = 0; j < M.size(); j++) { // row / pivot
             M[i][j] /= f;
             I[i][j] /= f;
@@ -169,6 +156,71 @@ mat inv(mat M) {
         }
     }
     return I; // return inverse
+}
+
+// concatenate A and B row-wise
+mat rconcat(mat A, mat B) {
+    assert(A.front().size() == B.front().size());
+    for (auto r : B) {
+        A.push_back(r);
+    }
+    return A;
+}
+
+// concatenate A and B column-wise
+mat cconcat(mat A, mat B) {
+    assert(A.size() == B.size());
+    for (int i = 0; i < A.size(); i++) {
+        for (auto c : B[i]) {
+            A[i].push_back(c);
+        }
+    }
+    return A;
+}
+
+// for matrices of dims AxB and CxD, if max(A, B, C, D) < 512 - O(N^3) mat mul algorithm
+// if max(A, B, C, D) > 512 - Strassen's ~O(2^2.8074) mat mul algorithm
+// for disproportionate mat sizes - split, mul then concatenate
+mat mul(mat A, mat B) {
+    int mdim = max(A.size(), B.front().size());
+    if (!strassen || mdim < 512) {
+        mat C(A.size(), vd(B.front().size()));
+        for (int i = 0; i < A.size(); i++) {
+            for (int j = 0; j < B.front().size(); j++) {
+                for (int k = 0; k < A.size(); k++) {
+                    C[i][j] += A[i][k] * B[k][j];
+                }
+            }
+        }
+        return C;
+    } 
+    else {
+        mdim += mdim % 2;
+        int dim = mdim / 2;
+        mat P(mdim, vd(mdim, 0)), Q(mdim, vd(mdim, 0)), R(mdim, vd(mdim, 0));
+        eq(P, A, { 0, 0 });
+        eq(Q, B, { 0, 0 });
+        mat P11 = block(P, { 0, dim }, { 0, dim });
+        mat P12 = block(P, { 0, dim }, { dim, mdim });
+        mat P21 = block(P, { dim, mdim }, { 0, dim });
+        mat P22 = block(P, { dim, mdim }, { dim, mdim });
+        mat Q11 = block(Q, { 0, dim }, { 0, dim });
+        mat Q12 = block(Q, { 0, dim }, { dim, mdim });
+        mat Q21 = block(Q, { dim, mdim }, { 0, dim });
+        mat Q22 = block(Q, { dim, mdim }, { dim, mdim });
+        mat M1 = mul(add(P11, P22), add(Q11, Q22));
+        mat M2 = mul(add(P21, P22), Q11);
+        mat M3 = mul(P11, subtract(Q12, Q22));
+        mat M4 = mul(P22, subtract(Q21, Q11));
+        mat M5 = mul(add(P11, P12), Q22);
+        mat M6 = mul(subtract(P21, P11), add(Q11, Q12));
+        mat M7 = mul(subtract(P12, P22), add(Q21, Q22));
+        eq(R, subtract(add(add(M1, M4), M7), M5), { 0, 0 });
+        eq(R, add(M3, M5), { 0, dim });
+        eq(R, add(M2, M4), { dim, 0 });
+        eq(R, subtract(add(add(M1, M3), M6), M2), { dim, dim });
+        return block(R, { 0, A.size() }, { 0, B[0].size() });
+    }
 }
 
 // input a vector
