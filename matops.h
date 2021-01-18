@@ -1,3 +1,5 @@
+// matrix operations
+
 #include "types.h"
 
 bool strassen = true;
