@@ -2,16 +2,20 @@
 
 // for matrix multiplication, standard mat mul algorithm - O(N^3)
 // Strassen's algorithm is asymptotically faster - ~O(N^2.8704)
-// but it has a large constant upfront and it accumulates decimal errors
-// therefore, standard mat mul is better for practical purposes
-// to use Strassen's algorithm, set variable "strassen" to true
+// but standard mat mul is more practical for N <= 50
+// use a hybrid version - Strassen till N == 100 then switch to O(N^3) mat mul
 
-bool strassen = false;
+bool strassen = true;
 
 // print vector
 void print_vd(vd v) {
     for (auto vx : v) {
-        cout << vx << " ";
+        if (vx > threshold) {
+            cout << vx << " ";
+        }
+        else {
+            cout << 0 << " ";
+        }
     }
 }
 
@@ -19,7 +23,12 @@ void print_vd(vd v) {
 void print_mat(mat M) {
     for (auto r : M) {
         for (auto c : r) {
-            cout << c << " ";
+            if (c > threshold) {
+                cout << c << " ";
+            }
+            else {
+                cout << 0 << " ";
+            }
         }
         cout << "\n";
     }
@@ -35,7 +44,7 @@ mat eye(int n) {
 }
 
 // set a block of a matrix equal to another matrix
-void eq(mat &A, mat B, pii rc) {
+void eq(mat& A, mat B, pii rc) {
     for (int i = 0; i < B.size(); i++) {
         for (int j = 0; j < B.front().size(); j++) {
             A[rc.first + i][rc.second + j] = B[i][j];
@@ -91,8 +100,8 @@ mat transpose(mat A) { // return transpose of matrix
 
 // mat mul
 mat mul(mat A, mat B) {
-    int mdim = max(A.size(), A.front().size()) * max(B.size(), B.front().size());
-    if (!strassen || mdim <= 1024) { 
+    int mdim = max(max(A.size(), A.front().size()), max(B.size(), B.front().size()));
+    if (!strassen || mdim <= 50) {
         mat C(A.size(), vd(B.front().size()));
         for (int i = 0; i < A.size(); i++) {
             for (int j = 0; j < B.front().size(); j++) {
@@ -104,19 +113,19 @@ mat mul(mat A, mat B) {
         return C;
     }
     else {
-        int dim = pow(2, ceil(log(mdim) / log(4)));
+        int dim = int(mdim / 2);
         // Let R = PQ and P, Q and R are all of same dim
-        mat P(dim, vd(dim, 0)), Q(dim, vd(dim, 0)), R(dim, vd(dim, 0));
+        mat P(mdim, vd(mdim, 0)), Q(mdim, vd(mdim, 0)), R(mdim, vd(mdim, 0));
         eq(P, A, { 0, 0 });
         eq(Q, B, { 0, 0 });
-        mat P11 = block(P, { 0, dim / 2 }, { 0, dim / 2 });
-        mat P12 = block(P, { 0, dim / 2 }, { dim / 2, dim });
-        mat P21 = block(P, { dim / 2, dim }, { 0, dim / 2 });
-        mat P22 = block(P, { dim / 2, dim }, { dim / 2, dim });
-        mat Q11 = block(Q, { 0, dim / 2 }, { 0, dim / 2 });
-        mat Q12 = block(Q, { 0, dim / 2 }, { dim / 2, dim });
-        mat Q21 = block(Q, { dim / 2, dim }, { 0, dim / 2 });
-        mat Q22 = block(Q, { dim / 2, dim }, { dim / 2, dim });
+        mat P11 = block(P, { 0, dim }, { 0, dim });
+        mat P12 = block(P, { 0, dim }, { dim, mdim });
+        mat P21 = block(P, { dim, mdim }, { 0, dim });
+        mat P22 = block(P, { dim, mdim }, { dim, mdim });
+        mat Q11 = block(Q, { 0, dim}, { 0, dim });
+        mat Q12 = block(Q, { 0, dim }, { dim, mdim });
+        mat Q21 = block(Q, { dim, mdim }, { 0, dim });
+        mat Q22 = block(Q, { dim, mdim }, { dim, mdim });
         // M1 = (P11 + P22)(Q11 + Q22)
         mat M1 = mul(add(P11, P22), add(Q11, Q22));
         // M2 = (P21 + P22)Q11
