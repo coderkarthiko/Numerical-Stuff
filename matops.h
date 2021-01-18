@@ -3,7 +3,7 @@
 bool strassen = true;
 
 // print vector
-void print_vd(vd v) {
+void vdprint(vd v) {
     for (auto vx : v) {
         if (vx > threshold) {
             cout << vx << " ";
@@ -15,7 +15,7 @@ void print_vd(vd v) {
 }
 
 // print matrix
-void print_mat(mat M) {
+void matprint(mat M) {
     for (auto r : M) {
         for (auto c : r) {
             if (c > threshold) {
@@ -110,7 +110,7 @@ ld det(mat M) {
             }
             det *= -1.;
         }
-        if (abs(M[i][i]) < threshold) { // if pivot element is 0, det(M) = 0
+        if (abs(M[i][i]) <= threshold) { // if pivot element is 0, det(M) = 0
             return 0;
         }
         det *= M[i][i]; // multiply det by pivot element
@@ -140,7 +140,7 @@ mat inv(mat M) {
         swap(M[i], M[r]);
         swap(I[i], I[r]);
         double f = M[i][i];
-        assert(abs(f) > threshold);
+        assert(abs(f) >= threshold);
         for (int j = 0; j < M.size(); j++) { // row / pivot
             M[i][j] /= f;
             I[i][j] /= f;
@@ -178,6 +178,27 @@ mat cconcat(mat A, mat B) {
     return A;
 }
 
+// vector dot product
+ld dot(vd A, vd B) {
+    ld prod = 0;
+    for (int i = 0; i < A.size(); i++) {
+        prod += A[i] * B[i];
+    }
+    return prod;
+}
+
+vd matrow(mat A, int r) {
+    return A[r];
+}
+
+vd matcol(mat A, int c) {
+    vd col = {};
+    for (auto r : A) {
+        col.push_back(r[c]);
+    }
+    return col;
+}
+
 // for matrices of dims AxB and CxD, if max(A, B, C, D) < 512 - O(N^3) mat mul algorithm
 // if max(A, B, C, D) > 512 - Strassen's ~O(2^2.8074) mat mul algorithm
 // for disproportionate mat sizes - split, mul then concatenate
@@ -187,9 +208,7 @@ mat mul(mat A, mat B) {
         mat C(A.size(), vd(B.front().size()));
         for (int i = 0; i < A.size(); i++) {
             for (int j = 0; j < B.front().size(); j++) {
-                for (int k = 0; k < A.size(); k++) {
-                    C[i][j] += A[i][k] * B[k][j];
-                }
+                C[i][j] = dot(matrow(A, i), matcol(B, j));
             }
         }
         return C;
@@ -224,7 +243,7 @@ mat mul(mat A, mat B) {
 }
 
 // input a vector
-vd get_vd() {
+vd getvd() {
     int n;
     cin >> n;
     vd v(n);
@@ -235,7 +254,7 @@ vd get_vd() {
 }
 
 // input a matrix
-mat get_mat() {
+mat getmat() {
     int n, m;
     cin >> n >> m;
     mat M(n, vd(m));
